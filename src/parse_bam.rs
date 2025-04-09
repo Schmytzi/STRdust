@@ -182,6 +182,8 @@ fn test_get_overlapping_reads() {
         start: 154654404,
         end: 154654432,
         created: None,
+        id: "TEST".to_string(),
+        motifs: "CA".to_string(),
     };
     let unphased = false;
     let mut bam = create_bam_reader(&bam, &fasta);
@@ -197,6 +199,8 @@ fn test_get_overlapping_reads_url() {
         start: 154654404,
         end: 154654432,
         created: None
+        id: "TEST".to_string(),
+        motifs: "CA".to_string(),
     };
     let unphased = false;
     let mut bam = create_bam_reader(&bam, &fasta);

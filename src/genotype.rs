@@ -355,6 +355,8 @@ mod tests {
             start: 154654404,
             end: 154654432,
             created: None,
+            id: String::from("test-repeat"),
+            motifs: "CA".to_string(),
         };
         let flanking = 2000;
         let minlen = 5;
@@ -395,6 +397,8 @@ mod tests {
             start: 154654404,
             end: 154654432,
             created: None,
+            id: "TEST".to_string(),
+            motifs: "CA".to_string(),
         };
         let args = Cli {
             bam: String::from("test_data/small-test-phased.bam"),
@@ -427,6 +431,8 @@ mod tests {
             start: 154654404,
             end: 154654432,
             created: None,
+            id: "TEST".to_string(),
+            motifs: "CA".to_string(),
         };
         let args = Cli {
             bam: String::from("test_data/small-test-phased.bam"),
@@ -478,6 +484,8 @@ mod tests {
             start: 154654404,
             end: 154654432,
             created: None,
+            id: "TEST".to_string(),
+            motifs: "CA".to_string(),
         };
         let mut bam = parse_bam::create_bam_reader(&args.bam, &args.fasta);
         let genotype = genotype_repeat(&repeat, &args, &mut bam);
@@ -510,6 +518,8 @@ mod tests {
             start: 154654404,
             end: 154654432,
             created: None,
+            id: "TEST".to_string(),
+            motifs: "CA".to_string(),
         };
         let mut bam = parse_bam::create_bam_reader(&args.bam, &args.fasta);
         let genotype = genotype_repeat(&repeat, &args, &mut bam);
@@ -543,6 +553,8 @@ mod tests {
             start: 154654404,
             end: 154654432,
             created: None,
+            id: "TEST".to_string(),
+            motifs: "CA".to_string(),
         };
         let mut bam = parse_bam::create_bam_reader(&args.bam, &args.fasta);
         let genotype = genotype_repeat(&repeat, &args, &mut bam);

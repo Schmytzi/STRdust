@@ -184,6 +184,8 @@ mod tests {
                 start: 1,
                 end: 100,
                 created: None
+                id: "".to_string(),
+                motifs: "CA".to_string(),
             },
         );
         println!("Consensus: {}", cons.seq.unwrap());

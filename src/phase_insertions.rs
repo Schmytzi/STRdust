@@ -333,6 +333,8 @@ mod tests {
                 start: 154654404,
                 end: 154654432,
                 created: None
+                id: "TEST".to_string(),
+                motifs: "CA".to_string(),
             },
             false,
         );
@@ -374,6 +376,8 @@ mod tests {
                 start: 154654404,
                 end: 154654432,
                 created: None
+                id: "TEST".to_string(),
+                motifs: "CA".to_string(),
             },
             false,
         );
@@ -414,6 +418,8 @@ mod tests {
                 start: 154654404,
                 end: 154654432,
                 created: None
+                id: "TEST".to_string(),
+                motifs: "CA".to_string(),
             },
             false,
         );
@@ -457,6 +463,8 @@ mod tests {
                 start: 154654404,
                 end: 154654432,
                 created: None
+                id: "TEST".to_string(),
+                motifs: "CA".to_string(),
             },
             false,
         );
@@ -498,6 +506,8 @@ mod tests {
                 start: 154654404,
                 end: 154654432,
                 created: None
+                id: "TEST_RFC1".to_string(),
+                motifs: "CA".to_string(),
             },
             false,
         );
@@ -570,6 +580,8 @@ mod tests {
                 start: 154654404,
                 end: 154654432,
                 created: None
+                id: "TEST_RFC1".to_string(),
+                motifs: "CA".to_string(),
             },
             false,
         );

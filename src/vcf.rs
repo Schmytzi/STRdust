@@ -9,6 +9,8 @@ use std::io::Read;
 use crate::Cli;
 
 
+use crate::motif::create_mc;
+
 pub struct Allele {
     pub length: String, // length of the consensus sequence minus the length of the repeat sequence
     pub full_length: String, // length of the consensus sequence
@@ -58,6 +60,9 @@ pub struct VCFRecord {
     pub ps: Option<u32>, // phase set identifier
     pub flags: String,
     pub allele: (String, String),
+    pub id: String,
+    pub motifs: String,
+    pub mc: (String, String),
 }
 
 impl VCFRecord {
@@ -94,6 +99,8 @@ impl VCFRecord {
         let (genotype1, genotype2) =
             determine_genotypes(&repeat_ref_sequence, &allele1.seq, &allele2.seq);
 
+        let mc1 = create_mc(&repeat.motifs, &allele1.seq);
+        let mc2 = create_mc(&repeat.motifs, &allele2.seq);
         let alts = match (genotype1.as_str(), genotype2.as_str()) {
             ("1", "0") | ("1", ".") | ("1", "1") => allele1.seq, // if both alleles are the same, only report one
             ("0", "1") | (".", "1") => allele2.seq,
@@ -149,6 +156,9 @@ impl VCFRecord {
             ps,
             flags,
             allele: (genotype1.to_string(), genotype2.to_string()),
+            id: repeat.id.clone(),
+            motifs: repeat.motifs.clone(),
+            mc: (mc1, mc2),
         }
     }
 
@@ -183,6 +193,9 @@ impl VCFRecord {
             ps: None,
             flags: "".to_string(),
             allele: (".".to_string(), ".".to_string()),
+            id: repeat.id.clone(),
+            motifs: repeat.motifs.clone(),
+            mc: (".".to_string(), ".".to_string()),
         }
     }
 
@@ -315,12 +328,12 @@ impl fmt::Display for VCFRecord {
         match &self.alt_seq {
             Some(alts) => {
                 let (FORMAT, ps) = match self.ps {
-                    Some(ps) => ("GT:RB:FRB:SUP:SC:PS", format!(":{}", ps)),
-                    None => ("GT:RB:FRB:SUP:SC", "".to_string()),
+                    Some(ps) => ("GT:RB:FRB:SUP:MC:SC:PS", format!(":{}", ps)),
+                    None => ("GT:RB:FRB:SUP:MC:SC", "".to_string()),
                 };
                 write!(
                     f,
-                    "{chrom}\t{start}\t.\t{ref}\t{alt}\t.\t.\t{flags}END={end};STDEV={sd1},{sd2}{somatic}{outliers}{time_taken}\t{FORMAT}\t{genotype1}|{genotype2}:{l1},{l2}:{fl1},{fl2}:{sup1},{sup2}:{score1},{score2}{ps}",
+                    "{chrom}\t{start}\t.\t{ref}\t{alt}\t.\t.\t{flags}REPID={id};MOTIFS={motifs};END={end};STDEV={sd1},{sd2}{somatic}{outliers}{time_taken}\t{FORMAT}\t{genotype1}|{genotype2}:{l1},{l2}:{fl1},{fl2}:{sup1},{sup2}:{mc1},{mc2}:{score1},{score2}{ps}",
                     chrom = self.chrom,
                     start = self.start,
                     flags = self.flags,
@@ -342,12 +355,17 @@ impl fmt::Display for VCFRecord {
                     sup2 = self.support.1,
                     score1 = self.score.0,
                     score2 = self.score.1,
+                    id = self.id,
+                    motifs = self.motifs,
+                    mc1 = self.mc.0,
+                    mc2 = self.mc.1,
+                    
                 )
             }
             None => {
                 write!(
                     f,
-                    "{chrom}\t{start}\t.\t{ref}\t.\t.\t.\tEND={end};{somatic}\tGT:SUP\t{genotype1}|{genotype2}:{sup1},{sup2}",
+                    "{chrom}\t{start}\t.\t{ref}\t.\t.\t.\tREPID={id};MOTIFS={motifs};END={end};{somatic}\tGT:SUP\t{genotype1}|{genotype2}:{sup1},{sup2}:{mc1},{mc2}",
                     chrom = self.chrom,
                     start = self.start,
                     end = self.end,
@@ -357,6 +375,10 @@ impl fmt::Display for VCFRecord {
                     genotype2 = self.allele.1,
                     sup1 = self.support.0,
                     sup2 = self.support.1,
+                    id = self.id,
+                    motifs = self.motifs,
+                    mc1 = self.mc.0,
+                    mc2 = self.mc.1,
                 )
             }
         }
@@ -417,6 +439,12 @@ pub fn write_vcf_header(args: &Cli) {
         println!(r#"##contig=<ID={},length={}>"#, name, length);
     }
     println!(
+        r#"##INFO=<ID=REPID,Number=1,Type=String,Description="Repeat ID">"#
+    );
+    println!(
+        r#"##INFO=<ID=MOTIFS,Number=1,Type=String,Description="Repeat motifs">"#
+    );
+    println!(
         r#"##INFO=<ID=END,Number=1,Type=Integer,Description="End position of the repeat interval">"#
     );
     println!(
@@ -443,6 +471,7 @@ pub fn write_vcf_header(args: &Cli) {
     );
     println!(r#"##FORMAT=<ID=PS,Number=1,Type=Integer,Description="Phase set identifier">"#);
     println!(r#"##FORMAT=<ID=SUP,Number=2,Type=Integer,Description="Read support per allele">"#);
+    println!(r#"##FORMAT=<ID=MC,Number=2,Type=String,Description="Motif count per allele">"#);
     println!(r#"##FORMAT=<ID=SC,Number=2,Type=Integer,Description="Consensus score per allele">"#);
     let name = match &args.sample {
         Some(name) => name,
